@@ -14,7 +14,6 @@ import com.acmerobotics.roadrunner.Vector2d
 import com.acmerobotics.roadrunner.constantProfile
 import com.google.gson.annotations.SerializedName
 import com.qualcomm.hardware.lynx.LynxModule
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -177,12 +176,10 @@ private fun recordUnwrappedEncoderData(gs: List<EncoderGroup>, ts: List<Double>,
     val pv = e.getPositionAndVelocity()
 
     ps.times.add(t)
-    ps.values.add(pv.position.toDouble())
+    ps.values.add(pv.position)
 
-    if (pv.velocity != null) {
-        vs.times.add(t)
-        vs.values.add(pv.velocity.toDouble())
-    }
+    vs.times.add(t)
+    vs.values.add(pv.velocity)
 }
 
 fun shouldFixVels(view: DriveView, er: EncoderRef): Boolean {
@@ -314,7 +311,7 @@ class AngularRampLogger(val dvf: DriveViewFactory) : LinearOpMode() {
     }
 }
 
-private fun avgPos(es: List<Encoder>) = es.sumOf { it.getPositionAndVelocity().position.toDouble() } / es.size
+private fun avgPos(es: List<Encoder>) = es.sumOf { it.getPositionAndVelocity().position } / es.size
 
 class ForwardPushTest(val dvf: DriveViewFactory) : LinearOpMode() {
     override fun runOpMode() {
@@ -548,7 +545,7 @@ class ManualFeedforwardTuner(val dvf: DriveViewFactory) : LinearOpMode() {
         var movingForwards = true
         var startTs = System.nanoTime() / 1e9
 
-        val lastPositions = MutableList(view.forwardEncs.size) { 0 }
+        val lastPositions = MutableList(view.forwardEncs.size) { 0.0 }
         val lastTimes = view.forwardEncs.map { ElapsedTime() }
         val velEstimates = view.forwardEncs.map { RollingThreeMedian() }
         while (!isStopRequested) {
@@ -568,15 +565,7 @@ class ManualFeedforwardTuner(val dvf: DriveViewFactory) : LinearOpMode() {
                         val ref = view.forwardEncs[i]
 
                         val pv = view.encoder(ref).getPositionAndVelocity()
-                        val v = if (pv.velocity == null) {
-                            val lastPos = lastPositions[i]
-                            lastPositions[i] = pv.position
-                            val currVelocity = velEstimates[i].update((pv.position - lastPos) / lastTimes[i].seconds())
-                            lastTimes[i].reset()
-                            currVelocity
-                        } else {
-                            pv.velocity.toDouble()
-                        }
+                        val v = pv.velocity
 
                         telemetry.addData("v$i", view.inPerTick * v)
                     }

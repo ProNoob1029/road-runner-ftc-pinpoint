@@ -15,10 +15,10 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 
 // there may be legacy logs here, but we should be robust to that
-val LOG_ROOT = File(AppUtil.ROOT_FOLDER, "RoadRunner/logs");
+val LOG_ROOT = File(AppUtil.ROOT_FOLDER, "RoadRunner/logs")
 
 @SuppressLint("SimpleDateFormat")
-private val DATE_FORMAT = SimpleDateFormat("yyyy_MM_dd__HH_mm_ss_SSS");
+private val DATE_FORMAT = SimpleDateFormat("yyyy_MM_dd__HH_mm_ss_SSS")
 
 private fun openLogFile(suffix: String): OutputStream {
     val filename = "${DATE_FORMAT.format(System.currentTimeMillis())}__$suffix.log"

@@ -18,19 +18,20 @@ interface PinpointView {
 
     fun update()
 
-    fun getParEncoderPosition(): Int
-    fun getPerpEncoderPosition(): Int
+    fun getParEncoderPositionAndVelocity(): PositionVelocityPair
+    fun getPerpEncoderPositionAndVelocity(): PositionVelocityPair
+
     fun getHeadingVelocity(unit: UnnormalizedAngleUnit): Float
 }
 
 class PinpointParEncoder(val pinpoint: PinpointView) : Encoder {
     override var direction by pinpoint::parDirection
 
-    override fun getPositionAndVelocity() = pinpoint.getParEncoderPosition().let {
+    override fun getPositionAndVelocity() = pinpoint.getParEncoderPositionAndVelocity().let {
         if (direction == DcMotorSimple.Direction.REVERSE) {
-            PositionVelocityPair(-it, null, -it, null)
+            PositionVelocityPair(-it.position, -it.velocity, it.rawPosition, it.rawVelocity)
         } else {
-            PositionVelocityPair(it, null, it, null)
+            PositionVelocityPair(it.position, it.velocity, it.rawPosition, it.rawVelocity)
         }
     }
 }
@@ -38,11 +39,11 @@ class PinpointParEncoder(val pinpoint: PinpointView) : Encoder {
 class PinpointPerpEncoder(val pinpoint: PinpointView) : Encoder {
     override var direction by pinpoint::perpDirection
 
-    override fun getPositionAndVelocity() = pinpoint.getPerpEncoderPosition().let {
+    override fun getPositionAndVelocity() = pinpoint.getPerpEncoderPositionAndVelocity().let {
         if (direction == DcMotorSimple.Direction.REVERSE) {
-            PositionVelocityPair(-it, null, -it, null)
+            PositionVelocityPair(-it.position, -it.velocity, it.rawPosition, it.rawVelocity)
         } else {
-            PositionVelocityPair(it, null, it, null)
+            PositionVelocityPair(it.position, it.velocity, it.rawPosition, it.rawVelocity)
         }
     }
 }

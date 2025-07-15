@@ -9,8 +9,8 @@ import kotlin.math.min
 import kotlin.math.round
 
 class PositionVelocityPair(
-        @JvmField val position: Int, @JvmField val velocity: Int?,
-        @JvmField val rawPosition: Int, @JvmField val rawVelocity: Int?
+        @JvmField val position: Double, @JvmField val velocity: Double,
+        @JvmField val rawPosition: Double, @JvmField val rawVelocity: Double
  )
 
 sealed interface Encoder {
@@ -29,7 +29,7 @@ interface EncoderGroup {
 class RawEncoder(val motor: DcMotorEx) : Encoder {
     override var direction: DcMotorSimple.Direction = DcMotorSimple.Direction.FORWARD
 
-    private fun applyDirection(x: Int): Int {
+    private fun applyDirection(x: Double): Double {
         var y = x
         if (motor.direction == DcMotorSimple.Direction.REVERSE) {
             y = -y
@@ -43,8 +43,8 @@ class RawEncoder(val motor: DcMotorEx) : Encoder {
     }
 
     override fun getPositionAndVelocity(): PositionVelocityPair {
-        val rawPosition = motor.currentPosition
-        val rawVelocity = motor.velocity.toInt()
+        val rawPosition = motor.currentPosition.toDouble()
+        val rawVelocity = motor.velocity
         return PositionVelocityPair(
                 applyDirection(rawPosition),
                 applyDirection(rawVelocity),
@@ -85,7 +85,7 @@ private fun inverseOverflow(input: Int, estimate: Double): Int {
 }
 
 class OverflowEncoder(@JvmField val encoder: RawEncoder) : Encoder {
-    private var lastPosition: Int = encoder.getPositionAndVelocity().position
+    private var lastPosition: Double = encoder.getPositionAndVelocity().position
     private val lastUpdate = ElapsedTime()
 
     private val velEstimate = RollingThreeMedian()
@@ -100,7 +100,7 @@ class OverflowEncoder(@JvmField val encoder: RawEncoder) : Encoder {
 
         return PositionVelocityPair(
                 p.position,
-                p.velocity?.let { inverseOverflow(it, v) },
+                p.velocity.toInt().let { inverseOverflow(it, v) }.toDouble(),
                 p.rawPosition,
                 p.rawVelocity,
         )

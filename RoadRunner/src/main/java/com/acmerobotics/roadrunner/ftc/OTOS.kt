@@ -12,10 +12,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation
 import org.firstinspires.ftc.robotcore.external.navigation.Quaternion
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
-import kotlin.math.round
 
-fun rawPosVelPair(pos: Int, vel: Int) = PositionVelocityPair(pos, vel, pos, vel)
-fun rawPosVelPair(pos: Double, vel: Double) = rawPosVelPair(round(pos).toInt(), round(vel).toInt())
+fun rawPosVelPair(pos: Double, vel: Double) = PositionVelocityPair(pos, vel, pos, vel)
+fun rawPosVelPair(pos: Int, vel: Int) = rawPosVelPair(pos.toDouble(), vel.toDouble())
 
 fun SparkFunOTOS.Pose2D.toRRPose() = Pose2d(x, y, h)
 fun Pose2d.toOTOSPose() = SparkFunOTOS.Pose2D(position.x, position.y, heading.toDouble())
